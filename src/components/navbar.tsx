@@ -1,7 +1,8 @@
 import React from "react";
-import { signOut } from "@/auth";
 import Image from "next/image";
 import { Button } from "./ui/button";
+import { signOut } from "next-auth/react";
+import SignOutButton from "./auth/sign-out-button";
 
 export default function Navbar() {
   return (
@@ -17,14 +18,7 @@ export default function Navbar() {
           />
         </li>
         <li>
-          <form
-            action={async (formData) => {
-              "use server";
-              await signOut();
-            }}
-          >
-            <Button type="submit">Sign out</Button>
-          </form>
+          <SignOutButton />
         </li>
       </ul>
     </header>

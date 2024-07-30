@@ -41,3 +41,14 @@ model Account {
   @@unique([provider, providerAccountId])
   @@map("accounts")
 }
+
+model PastQuiz {
+  id             String   @id @default(cuid())
+  userEmail      String   @map("user_email")
+  createdAt      DateTime @default(now()) @map("created_at")
+  score          Int
+  totalAnswered  Int      @map("total_answered")
+  totalQuestions Int      @map("total_questions")
+
+  @@map("past_quizzes")
+}

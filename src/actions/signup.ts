@@ -27,6 +27,8 @@ export default async function signup(values: any): Promise<TAuthResponse> {
     };
   }
 
+  console.log(db);
+
   await db.user.create({
     data: {
       email,
