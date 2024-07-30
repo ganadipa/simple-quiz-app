@@ -3,6 +3,7 @@
 import { db } from "@/lib/db";
 import { TPastResult, TQuestion, TUserAnswersStore } from "@/lib/types";
 import bcrypt from "bcryptjs";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 export async function submitQuiz(
   userAnswers: string[],
@@ -34,6 +35,8 @@ export async function submitQuiz(
       totalQuestions: questions.length,
     },
   });
+
+  revalidatePath("/dashboard", "page");
 }
 
 export async function getPastResults(
@@ -57,6 +60,8 @@ export async function getPastResults(
       totalQuestions: result.totalQuestions,
     };
   });
+
+  revalidatePath("/dashboard", "page");
 
   return ret;
 }
