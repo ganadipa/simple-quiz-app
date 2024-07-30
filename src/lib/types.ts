@@ -42,3 +42,8 @@ export type TPastResult = {
   totalCorrect: number;
   totalQuestions: number;
 };
+
+export interface ITimerStore {
+  targetTime: number;
+  setTargetTime: (time: number) => void;
+}

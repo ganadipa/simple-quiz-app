@@ -1,5 +1,6 @@
 "use client";
 
+import { useTimerStore } from "@/stores/timer-store";
 import React, { useEffect, useState } from "react";
 
 const formatTime = (seconds: number) => {
@@ -37,20 +38,34 @@ const CountdownTimer = ({
   initialTime: number;
   onTimeUp: () => void;
 }) => {
+  const { targetTime, setTargetTime } = useTimerStore();
   const [timeLeft, setTimeLeft] = useState(initialTime);
 
   useEffect(() => {
-    if (timeLeft <= 0) {
-      onTimeUp();
-      return;
+    let newTargetTime = targetTime;
+    if (newTargetTime === 0 || newTargetTime < Date.now()) {
+      newTargetTime = Date.now() + initialTime * 1000;
+      setTargetTime(newTargetTime);
     }
 
-    const timer = setInterval(() => {
-      setTimeLeft((prevTime) => prevTime - 1);
-    }, 1000);
+    const updateTimer = () => {
+      const currentTime = Date.now();
+      const remainingTime = Math.max(
+        0,
+        Math.floor((newTargetTime - currentTime) / 1000)
+      );
+      setTimeLeft(remainingTime);
+      if (remainingTime <= 0) {
+        onTimeUp();
+        clearInterval(timer);
+      }
+    };
+
+    const timer = setInterval(updateTimer, 1000);
+    updateTimer();
 
     return () => clearInterval(timer);
-  }, [timeLeft, onTimeUp]);
+  }, [initialTime, onTimeUp, targetTime, setTargetTime]);
 
   return (
     <div className="text-xl font-bold mb-4">

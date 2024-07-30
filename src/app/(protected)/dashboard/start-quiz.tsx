@@ -55,10 +55,15 @@ export default function StartQuiz() {
         response.data.results.map(async (question) => {
           let order = [0, 1, 2, 3];
           order = shuffleArray(order);
+          let choices = [
+            ...question.incorrect_answers,
+            question.correct_answer,
+          ];
+          choices = order.map((index) => choices[index]);
           return {
             question: question.question,
             hashedAnswer: await bcrypt.hash(question.correct_answer, 10),
-            choices: [...question.incorrect_answers, question.correct_answer],
+            choices,
             order,
           };
         })

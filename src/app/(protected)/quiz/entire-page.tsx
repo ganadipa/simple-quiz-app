@@ -12,6 +12,8 @@ import { SubmitDialogButton } from "./submit-dialog";
 import { Session } from "next-auth";
 import { submitQuiz } from "@/actions/quiz";
 import CountdownTimer from "./countdown-timer";
+import { useTimerStore } from "@/stores/timer-store";
+import toast from "react-hot-toast";
 
 export default function EntirePage({ session }: { session: Session }) {
   const { questions, setQuestions } = useQuestionsStore((state) => {
@@ -22,6 +24,7 @@ export default function EntirePage({ session }: { session: Session }) {
   });
   const searchParams = useSearchParams();
   const userAnswers = useUserAnswersStore((state) => state.answers);
+  const { setTargetTime } = useTimerStore();
   const hydrated = useQuestionsStore.persist.hasHydrated();
   const router = useRouter();
   const [isPending, setTransition] = useTransition();
@@ -66,8 +69,17 @@ export default function EntirePage({ session }: { session: Session }) {
       if (session.user?.email) {
         submitQuiz(userAnswers, questions, session.user?.email);
         setQuestions([]);
+        setTargetTime(0);
       }
     });
+    toast.success("Quiz submitted successfully!");
+  }
+
+  let totalAnswered = 0;
+  for (let i = 0; i < userAnswers.length; i++) {
+    if (questions[i].choices.includes(userAnswers[i])) {
+      totalAnswered++;
+    }
   }
 
   return (
@@ -95,6 +107,7 @@ export default function EntirePage({ session }: { session: Session }) {
                   }
                 )}
                 onClick={() => {
+                  const prev = userAnswers[number - 1];
                   if (userAnswers[number - 1] === choice) {
                     useUserAnswersStore.getState().setAnswer(number - 1, "");
                   } else {
@@ -103,7 +116,9 @@ export default function EntirePage({ session }: { session: Session }) {
                       .setAnswer(number - 1, choice);
                   }
 
-                  router.replace(`/quiz?number=${number + 1}`);
+                  if (choice === prev) {
+                    return;
+                  } else router.replace(`/quiz?number=${number + 1}`);
                 }}
                 dangerouslySetInnerHTML={{ __html: sanitize(choice) }}
               ></Button>
@@ -178,6 +193,11 @@ export default function EntirePage({ session }: { session: Session }) {
               {idx + 1}
             </Link>
           ))}
+        </div>
+        <div className="mt-4">
+          <span>
+            Total Answered: {totalAnswered}/ {questions.length}
+          </span>
         </div>
       </div>
     </section>
